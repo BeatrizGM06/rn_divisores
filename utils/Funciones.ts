@@ -5,14 +5,17 @@ function toEnteroPositivo(texto:string):ResultadoConversion{
     return { valor, exito }
 }
 
-function calcularDivisores(numero:number):Array<number>{
-    const lista=[]
-    for(let i=1;i<=numero;i++){
-        if(numero%i === 0){
-            lista.push(i)
+async function calcularDivisores(numero:number):Promise<Array<number>>{
+    return new Promise( (resolve,reject) => {
+        const lista=[]
+        for(let i=1;i<=numero;i++){
+            if(numero%i === 0){
+                lista.push(i)
+            }
         }
-    }
-    return lista
+        resolve(lista)
+    })
+    
 }
 
 type ResultadoConversion={
