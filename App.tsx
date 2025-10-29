@@ -1,4 +1,4 @@
-import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
 import { calcularDivisores, toEnteroPositivo } from './utils/Funciones'
 import CajaDivisor from './components/CajaDivisor'
@@ -6,12 +6,14 @@ import CajaDivisor from './components/CajaDivisor'
 export default function App() {
   const [texto,setTexto]=useState("")
   const [listaDivisores, setListaDivisores] = useState<Array<number>>([])
+  const [modalVisible, setModalVisible] = useState(false)
 
   function aceptarPulsado(){
     const {exito,valor} = toEnteroPositivo(texto)
     if(exito){
       const lista = calcularDivisores(valor)
       setListaDivisores(lista)
+      setModalVisible(true)
     }else{
       Alert.alert("Error","Debe introducirse un número entero positivo")
     }
@@ -21,21 +23,30 @@ export default function App() {
     <View style={styles.contenedorPrincipal}>
       <View style={styles.fila}>
         <TextInput placeholder='Escribe un número positivo'
+                  placeholderTextColor={"#666"}
                   style={styles.cuadroTexto}
                   value={texto}
                   onChangeText={setTexto}></TextInput>
-        <Pressable style={styles.boton} onPress={aceptarPulsado}>
+        <Pressable style={({pressed}) => pressed? [styles.boton,{opacity:0.4}]:styles.boton}
+                  onPress={aceptarPulsado}>
           <Text style={styles.textoBoton}>Aceptar</Text>
         </Pressable>
       </View>
-      <View style={styles.contenedorSecundario}>
-        <FlatList
-            data={listaDivisores}
-            renderItem={CajaDivisor}
-            keyExtractor={numero => numero.toString()}
-            numColumns={5}
-        />
-      </View>
+      {
+        modalVisible && (
+          <Modal animationType={"slide"} transparent={true}>
+            <Pressable style={styles.zonaSuperiorModal} onPress={() => setModalVisible(false)}/>
+            <View style={styles.zonaInferiorModal}>
+              <FlatList
+              data={listaDivisores}
+              renderItem={CajaDivisor}
+              keyExtractor={numero => numero.toString()}
+              numColumns={5}
+            />
+            </View>
+          </Modal>
+        )
+      }
     </View>
   )
 }
@@ -100,4 +111,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  zonaSuperiorModal:{
+    flex:1,
+    backgroundColor:"rgba(0,0,0,0.1)"
+  },
+  zonaInferiorModal:{
+    position: "absolute",
+    bottom:0,
+    width:"100%",
+    backgroundColor:"#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 32,
+    alignItems: "center"
+  }
 })
